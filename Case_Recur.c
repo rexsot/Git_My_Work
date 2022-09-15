@@ -24,8 +24,7 @@ int main()
 	int deep = 0; // 탐색 깊이
 	int sel = 0; // 배열값
 
-	while (1)
-	{
+	while (1) {
 		printf("탐색할 깊이 입력: ");
 		scanf("%d", &deep);
 		if (deep < 1) { // 음수 / 0 입력시

@@ -39,8 +39,6 @@ int recur_det(int mat[4][4], int deep)
 int main()
 {
 	int deep = 4;
-
 	printf("행렬식: %d", recur_det(matrix, deep));
-
 	return 0;
 }
