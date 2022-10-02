@@ -17,7 +17,7 @@ float c_r = 0.5; // 사각형 색
 float c_g = 0.0;
 float c_b = 0.0;
 
-float b_r = 0.5; // 배경색
+float b_r = 0.0; // 배경색
 float b_g = 0.0;
 float b_b = 0.0;
 
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 GLvoid drawScene()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(b_r, b_g, b_b, 1.0f);
     glColor3f(c_r, c_g, c_b);
     glRectf(-p_x, -p_y, p_x, p_y);
     glutSwapBuffers();
@@ -65,12 +65,12 @@ GLvoid Reshape(int w, int h)
 
 GLvoid Mouse(int button, int state, int x, int y)
 {
-    float c_f; 
+    float c_f;
     // x, y는 좌상을 0,0으로, 우,하를 원도우창 크기로 한다.
-    float x1 = X_MAX/2 - (p_x * X_MAX/2); // 400 - px * 200
-    float x2 = X_MAX/2 + (p_x * X_MAX/2);
-    float y1 = Y_MAX/2 - (p_y * Y_MAX/2);
-    float y2 = Y_MAX/2 + (p_y * Y_MAX/2);
+    float x1 = X_MAX / 2 - (p_x * X_MAX / 2); // 400 - px * 200
+    float x2 = X_MAX / 2 + (p_x * X_MAX / 2);
+    float y1 = Y_MAX / 2 - (p_y * Y_MAX / 2);
+    float y2 = Y_MAX / 2 + (p_y * Y_MAX / 2);
 
 
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) // 좌클릭
@@ -90,7 +90,7 @@ GLvoid Mouse(int button, int state, int x, int y)
             b_g = c_f;
             c_f = (float)(rand() % 10) / 10;
             b_b = c_f;
-            glClearColor(b_r, b_g, b_b, 1.0f);
+            //glClearColor(b_r, b_g, b_b, 1.0f);
         }
     }
     if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) // 우클릭, 크기 한계는 0.1-0.9
@@ -108,6 +108,7 @@ GLvoid Mouse(int button, int state, int x, int y)
             }
         }
     }
-    glutSwapBuffers();
+    drawScene();
 }
+
 
