@@ -7,37 +7,44 @@
 #include <gl/freeglut.h>
 #include <gl/freeglut_ext.h>
 
+#define X_MAX 800
+#define Y_MAX 800
+
 char* filetobuf(const char* file);
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
+GLvoid MouseClick(int button, int state, int x, int y);
+GLvoid Keyboard(unsigned char key, int x, int y);
+
+int curr = -1; // 현재 삼각형
+int swit = 1;
 
 void make_vertexShaders();
 void make_fragmentShaders();
 void make_shaderProgram();
 void InitBuffer();
 
-GLint width, height;
 GLint vertexShader;
 GLuint fragmentShader;
 GLuint shaderProgram;
 GLuint VAO, VBO[2];
 
 float vertexPosition[] = {
-    0.5, 1.0, 0.0,
+    0.25, 0.5, 0.0,
     0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-
-    -0.5, 1.0, 0.0,
-    -1.0, 0.0, 0.0,
-    0.0, 0.0, 0.0,
-
-    -0.5, 0.0, 0.0,
-    -1.0, -1.0, 0.0,
-    0.0, -1.0, 0.0,
-
     0.5, 0.0, 0.0,
-    1.0, -1.0, 0.0,
-    0.0, -1.0, 0.0
+
+    -0.25, 0.5, 0.0,
+    -0.5, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+
+    -0.25, 0.0, 0.0,
+    -0.5, -0.5, 0.0,
+    0.0, -0.5, 0.0,
+
+    0.25, 0.0, 0.0,
+    0.5, -0.5, 0.0,
+    0.0, -0.5, 0.0
 };
 
 float vertexColor[] = {
@@ -61,42 +68,55 @@ float vertexColor[] = {
 
 void main(int argc, char** argv)
 {
-    width = 500;
-    height = 500;
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(100, 100);
-    glutInitWindowSize(width, height);
+    glutInitWindowSize(X_MAX, Y_MAX);
     glutCreateWindow("Example1");
 
     glewExperimental = GL_TRUE;
-    glewInit();
+
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "Unable to initialize GLEW" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    else {
+        std::cout << "GLEW Initialized\n";
+    }
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glGenBuffers(2, VBO);
+
+    glutDisplayFunc(drawScene);
+    glutReshapeFunc(Reshape);
 
     make_vertexShaders();
     make_fragmentShaders();
     make_shaderProgram();
 
-    InitBuffer();
-
-    glutDisplayFunc(drawScene);
-    glutReshapeFunc(Reshape);
-    //glutMouseFunc(Mouse);
-
+    glutKeyboardFunc(Keyboard);
+    glutMouseFunc(MouseClick);
     glutMainLoop();
 }
 
 GLvoid drawScene()
 {
-    GLfloat rColor, gColor, bColor;
-    rColor = gColor = bColor = 0.0;
-    glClearColor(rColor, gColor, bColor, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    InitBuffer();
 
     glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 12);
-    //glDrawArrays(GL_LINES, 3, 2); 
+    //glBindVertexArray(VAO);
+
+    if (swit == 1) {
+        glDrawArrays(GL_TRIANGLES, 0, 12);
+    }
+    else {
+        glDrawArrays(GL_LINE_STRIP, 0, 12);
+    }
     glutSwapBuffers();
 }
 
@@ -104,9 +124,6 @@ GLvoid Reshape(int w, int h)
 {
     glViewport(0, 0, w, h);
 }
-
-// GLuint VAO, VBO[2];
-// VBO_pos[n] 꼴로 여러개 사용 가능
 
 GLchar* vertexSource, * fragmentSource; //--- 소스코드 저장 변수
 //GLint vertexShader;
@@ -117,17 +134,64 @@ GLvoid InitBuffer()
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     
-    glGenBuffers(2, VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPosition), vertexPosition, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPosition), vertexPosition, GL_STREAM_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexColor), vertexColor, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexColor), vertexColor, GL_STREAM_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
+
+}
+
+float add = 0.02f;
+int n = 1;
+int boo = -1;
+
+GLvoid MouseClick(int button, int state, int x, int y)
+{
+    // curr은 0, 1, 2, 3을 순환한다.
+    // vertexPosition[]은 x1 y1 z1 x2 y2 z2 꼴
+
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        curr++;
+        
+        if (n == 1 || n == 7) {
+            boo *= -1;
+        }
+        n += boo;
+
+        if (curr > 3) { curr = 0; }
+        int i = curr * 9;
+        
+        // 중상 - p1
+        vertexPosition[i] = 2.0f * (float)x / X_MAX - 1.0f; 
+        vertexPosition[i+1] = -(2.0f * (float)y / Y_MAX - 1.2f + n * add); 
+        
+        // 좌하 - p2
+        vertexPosition[i+3] = 2.0f * (float)x / X_MAX - 1.2f + n * add;
+        vertexPosition[i+4] = -(2.0f * (float)y / Y_MAX - 0.8f - n * add);
+
+        // 우하 - p3
+        vertexPosition[i+6] = 2.0f * (float)x / X_MAX - 0.8f - n * add;
+        vertexPosition[i+7] = -(2.0f * (float)y / Y_MAX - 0.8f - n * add);
+    }
+    drawScene();
+}
+
+GLvoid Keyboard(unsigned char key, int x, int y)
+{
+    if (key == 'a') {
+        swit = 1;
+    }
+
+    if (key == 'b') {
+        swit = -1;
+    }
+    drawScene();
 
 }
 
