@@ -30,15 +30,15 @@ GLuint VAO, VBO[2];
 // 2,4   1
 //
 // 5     3,6
-float vertexPosition[] = { 
+float vertexPosition[] = {
     0.5, 0.5, 0.0,
 
     -0.5, 0.5, 0.0,
     0.5, -0.5, 0.0,
-    
+
     -0.5, 0.5, 0.0,
     0.5, -0.5, 0.0,
-    
+
 
     -0.5, -0.5, 0.0
 };
@@ -100,7 +100,7 @@ GLvoid drawScene()
     glUseProgram(shaderProgram);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
-   
+
     glutSwapBuffers();
 }
 
@@ -187,7 +187,7 @@ GLvoid MouseDrag(int x, int y)
     // x1, y2 2     x2, y2 1
     //
     // x1, y1 4     x2, y1 3
-    
+
     // 2,4   1
     //
     // 5     3,6
@@ -200,7 +200,9 @@ GLvoid MouseDrag(int x, int y)
     y2 = Y_MAX / 2 - (vertexPosition[1] * Y_MAX / 2);
 
 
-    if (x1 < x && x < x2 && y2 < y && y < y1) {
+
+
+    if (x1 < x && x < x2 && y2 < y && y < y1 && curr == 0) {
         vertexPosition[3] -= (x_curr - x) / (X_MAX / 2.0f);
         vertexPosition[9] -= (x_curr - x) / (X_MAX / 2.0f); // x1
         vertexPosition[15] -= (x_curr - x) / (X_MAX / 2.0f);
@@ -209,28 +211,44 @@ GLvoid MouseDrag(int x, int y)
         vertexPosition[6] -= (x_curr - x) / (X_MAX / 2.0f); // x2
         vertexPosition[12] -= (x_curr - x) / (X_MAX / 2.0f);
 
-        vertexPosition[4] += (y_curr - y) / (X_MAX / 2.0f);
-        vertexPosition[10] += (y_curr - y) / (X_MAX / 2.0f); // y1
-        vertexPosition[16] += (y_curr - y) / (X_MAX / 2.0f);
+        vertexPosition[4] += (y_curr - y) / (Y_MAX / 2.0f);
+        vertexPosition[10] += (y_curr - y) / (Y_MAX / 2.0f); // y1
+        vertexPosition[16] += (y_curr - y) / (Y_MAX / 2.0f);
 
-        vertexPosition[1] += (y_curr - y) / (X_MAX / 2.0f);
-        vertexPosition[7] += (y_curr - y) / (X_MAX / 2.0f); // y2
-        vertexPosition[13] += (y_curr - y) / (X_MAX / 2.0f);
+        vertexPosition[1] += (y_curr - y) / (Y_MAX / 2.0f);
+        vertexPosition[7] += (y_curr - y) / (Y_MAX / 2.0f); // y2
+        vertexPosition[13] += (y_curr - y) / (Y_MAX / 2.0f);
     }
 
-    if (x >= x2 && y2 >= y) {
+    if (x >= x2 && y2 >= y && curr == 1) {
+        vertexPosition[0] -= (x_curr - x) / (X_MAX / 2.0f);
+        vertexPosition[1] += (y_curr - y) / (Y_MAX / 2.0f);
         curr = 1;
     }
 
-    if (x <= x1 && y2 >= y) {
+    if (x <= x1 && y2 >= y && curr == 2) {
+        vertexPosition[3] -= (x_curr - x) / (X_MAX / 2.0f);
+        vertexPosition[4] += (y_curr - y) / (Y_MAX / 2.0f);
+
+        vertexPosition[9] -= (x_curr - x) / (X_MAX / 2.0f);        
+        vertexPosition[10] += (y_curr - y) / (Y_MAX / 2.0f); // y1
+
         curr = 2;
     }
 
-    if (x >= x2 && y1 <= y) {
+    if (x >= x2 && y1 <= y && curr == 3) {
+
+        vertexPosition[6] -= (x_curr - x) / (X_MAX / 2.0f);
+        vertexPosition[7] += (y_curr - y) / (Y_MAX / 2.0f);
+
+        vertexPosition[12] -= (x_curr - x) / (X_MAX / 2.0f);
+        vertexPosition[13] += (y_curr - y) / (Y_MAX / 2.0f);
         curr = 3;
     }
 
-    if (x <= x1 && y1 <= y) {
+    if (x <= x1 && y1 <= y && curr == 4) {
+        vertexPosition[15] -= (x_curr - x) / (X_MAX / 2.0f);
+        vertexPosition[16] += (y_curr - y) / (Y_MAX / 2.0f);
         curr = 4;
     }
 
