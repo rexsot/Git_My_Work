@@ -24,7 +24,7 @@ void make_fragmentShaders();
 void make_shaderProgram();
 void InitBuffer();
 
-GLint vertexShader;
+GLint vertexShader; 
 GLuint fragmentShader;
 GLuint shaderProgram;
 GLuint VAO, VBO[2];
@@ -33,33 +33,45 @@ float vertexPosition[] = {
     0.25, 0.5, 0.0,
     0.0, 0.0, 0.0,
     0.5, 0.0, 0.0,
+    0.25, 0.5, 0.0,
 
     -0.25, 0.5, 0.0,
     -0.5, 0.0, 0.0,
     0.0, 0.0, 0.0,
+    -0.25, 0.5, 0.0,
 
     -0.25, 0.0, 0.0,
     -0.5, -0.5, 0.0,
     0.0, -0.5, 0.0,
+    -0.25, 0.0, 0.0,
 
     0.25, 0.0, 0.0,
     0.5, -0.5, 0.0,
-    0.0, -0.5, 0.0
+    0.0, -0.5, 0.0,
+    0.25, 0.0, 0.0
+
 };
 
 float vertexColor[] = {
     1.0, 0.0, 0.0,
     1.0, 0.0, 0.0,
     1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
+
 
     0.0, 1.0, 0.0,
     0.0, 1.0, 0.0,
     0.0, 1.0, 0.0,
+    0.0, 1.0, 0.0,
+
 
     0.0, 0.0, 1.0,
     0.0, 0.0, 1.0,
     0.0, 0.0, 1.0,
+    0.0, 0.0, 1.0,
 
+
+    1.0, 1.0, 1.0,
     1.0, 1.0, 1.0,
     1.0, 1.0, 1.0,
     1.0, 1.0, 1.0
@@ -112,10 +124,20 @@ GLvoid drawScene()
     //glBindVertexArray(VAO);
 
     if (swit == 1) {
-        glDrawArrays(GL_TRIANGLES, 0, 12);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 4, 3);
+        glDrawArrays(GL_TRIANGLES, 8, 3);
+        glDrawArrays(GL_TRIANGLES, 12, 3);
     }
     else {
-        glDrawArrays(GL_LINE_STRIP, 0, 12);
+        //glDrawArrays(GL_LINES, 0, 12);
+        for (int i = 0; i <= 12; i += 4) {
+            glDrawArrays(GL_LINES, i, 2);
+            glDrawArrays(GL_LINES, i + 1, 2);
+            glDrawArrays(GL_LINES, i + 2, 2);
+        }
+        
+
     }
     glutSwapBuffers();
 }
@@ -133,7 +155,7 @@ GLvoid InitBuffer()
 {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPosition), vertexPosition, GL_STREAM_DRAW);
 
@@ -158,26 +180,31 @@ GLvoid MouseClick(int button, int state, int x, int y)
 
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         curr++;
-        
+
         if (n == 1 || n == 7) {
             boo *= -1;
         }
         n += boo;
 
         if (curr > 3) { curr = 0; }
-        int i = curr * 9;
-        
+        int i = curr * 12;
+
         // 중상 - p1
-        vertexPosition[i] = 2.0f * (float)x / X_MAX - 1.0f; 
-        vertexPosition[i+1] = -(2.0f * (float)y / Y_MAX - 1.2f + n * add); 
-        
+        vertexPosition[i] = 2.0f * (float)x / X_MAX - 1.0f;
+        vertexPosition[i + 1] = -(2.0f * (float)y / Y_MAX - 1.2f + n * add);
+
         // 좌하 - p2
-        vertexPosition[i+3] = 2.0f * (float)x / X_MAX - 1.2f + n * add;
-        vertexPosition[i+4] = -(2.0f * (float)y / Y_MAX - 0.8f - n * add);
+        vertexPosition[i + 3] = 2.0f * (float)x / X_MAX - 1.2f + n * add;
+        vertexPosition[i + 4] = -(2.0f * (float)y / Y_MAX - 0.8f - n * add);
 
         // 우하 - p3
-        vertexPosition[i+6] = 2.0f * (float)x / X_MAX - 0.8f - n * add;
-        vertexPosition[i+7] = -(2.0f * (float)y / Y_MAX - 0.8f - n * add);
+        vertexPosition[i + 6] = 2.0f * (float)x / X_MAX - 0.8f - n * add;
+        vertexPosition[i + 7] = -(2.0f * (float)y / Y_MAX - 0.8f - n * add);
+
+        vertexPosition[i + 9] = 2.0f * (float)x / X_MAX - 1.0f;
+        vertexPosition[i + 10] = -(2.0f * (float)y / Y_MAX - 1.2f + n * add);
+
+
     }
     drawScene();
 }
